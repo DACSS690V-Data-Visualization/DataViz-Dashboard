@@ -1,0 +1,43 @@
+---
+title: "Data Visualization Dashbord"
+author: "Merveille Maroya-Powell"
+bibliography: testVisual.bib
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard) # always
+library(ggplot2) #will be used for the visualization 
+```
+
+## Intro {.sidebar}
+
+Preparing the dashboard based on the instructions given at @magallanes_reyes_data_2022, and @aden-buie_flexdashboard_2024.
+
+### References
+<div id="refs"></div>
+
+## Column {data-width="450"}
+
+### Barplot<!-- a title for plot -->
+## Intro {.sidebar}
+
+```{r}
+readRDS("del1Draft.rds")
+```
+
+## Column {data-width="550"}
+
+### Worst scatterplot
+
+```{r}
+#readRDS("del3Draft.rds")
+```
+
+### Worst map
+
+```{r}
+#readRDS("del4Draft.rds")
+```

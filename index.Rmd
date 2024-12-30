@@ -23,7 +23,6 @@ Preparing the dashboard based on the instructions given at @magallanes_reyes_dat
 ## Column {data-width="450"}
 
 ### Barplot<!-- a title for plot -->
-## Intro {.sidebar}
 
 ```{r}
 readRDS("del1Draft.rds")

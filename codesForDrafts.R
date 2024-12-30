@@ -55,7 +55,7 @@ library(ggplot2)
 #Creating the barplot to display all the selected variables in the Eduwa dataset
 del1Draft <- ggplot(tableFreq, aes(x = reorder(Var1, -Freq), y = Freq, fill = Var1))+ #using different colors to also serve as a legend to decipher the dataset.
   geom_bar(stat = "identity", color = "black") +
-  #labeling the graph
+  #labeling the graph for easy reading
   labs(
     title = "Information on Schools in Different Locale Types",
     subtitle = "Count of different locale types, Suburb subset",
@@ -65,8 +65,9 @@ del1Draft <- ggplot(tableFreq, aes(x = reorder(Var1, -Freq), y = Freq, fill = Va
   ) +
   theme_minimal() +
   #making sure all text are easily readable and visible
-  geom_text(aes(label = Freq), vjust = -0.2) +
-  scale_fill_discrete(name = "Locale Categories") 
+  geom_text(aes(label = Freq), vjust = 0.2) +
+  scale_fill_discrete(name = "Locale Categories") +
+  theme(axis.text.y = element_blank())
 
 # save del1Draft ----------------------------------------------------------
 saveRDS(del1Draft, file = "del1Draft.rds")

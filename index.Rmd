@@ -7,6 +7,7 @@ output:
     orientation: columns
 ---
 
+
 ```{r setup, include=FALSE}
 library(flexdashboard) # always
 library(ggplot2) #will be used for the visualization 

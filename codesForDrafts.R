@@ -65,12 +65,13 @@ del1Draft <- ggplot(tableFreq, aes(x = reorder(Var1, -Freq), y = Freq, fill = Va
   ) +
   theme_minimal() +
   #making sure all text are easily readable and visible
-  geom_text(aes(label = Freq), vjust = 0.2) +
+  geom_text(aes(label = Freq), vjust = -0.2) +
   scale_fill_discrete(name = "Locale Categories") +
   theme(axis.text.y = element_blank())
 
 # save del1Draft ----------------------------------------------------------
 saveRDS(del1Draft, file = "del1Draft.rds")
+
 
 # deliverable 2 ----------------------------------------------------------
 

@@ -30,7 +30,7 @@ readRDS("del1Draft.rds")
 
 ## Column {data-width="550"}
 
-### 
+### Boxplot
 
 ```{r}
 readRDS("del2Draft.rds")

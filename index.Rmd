@@ -30,7 +30,7 @@ readRDS("del1Draft.rds")
 
 ## Column {data-width="550"}
 
-### Boxplot
+### Violin plot
 
 ```{r}
 readRDS("Option1.rds")

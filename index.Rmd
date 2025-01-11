@@ -1,0 +1,48 @@
+---
+title: "Data Visualization Dashbord"
+author: "by Merveille Maroya-Powell"
+bibliography: testVisual.bib
+output: 
+  flexdashboard::flex_dashboard
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard) # always
+```
+
+## Sidebar {.sidebar}
+
+Preparing the dashboard based on the instructions given at @magallanes_reyes_data_2022, and @aden-buie_flexdashboard_2024.
+
+## Column {.tabset .tabset-fade}
+
+
+### Barplot<!-- a title for plot -->
+
+```{r}
+readRDS("del1Draft.rds")
+```
+
+
+### Violin plot
+
+```{r}
+readRDS("Option1.rds")
+```
+
+### To be Add
+
+```{r}
+#readRDS("del3Draft.rds")
+```
+
+
+### To be added
+
+```{r}
+#readRDS("del4Draft.rds")
+```
+
+
+### References 
+<div id="refs"></div>

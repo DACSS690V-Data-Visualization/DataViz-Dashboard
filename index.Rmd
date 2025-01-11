@@ -1,26 +1,21 @@
 ---
 title: "Data Visualization Dashbord"
-author: "Merveille Maroya-Powell"
+author: "by Merveille Maroya-Powell"
 bibliography: testVisual.bib
 output: 
-  flexdashboard::flex_dashboard:
-    orientation: columns
+  flexdashboard::flex_dashboard
 ---
-
 
 ```{r setup, include=FALSE}
 library(flexdashboard) # always
-library(ggplot2) #will be used for the visualization 
 ```
 
-## Intro {.sidebar}
+## Sidebar {.sidebar}
 
 Preparing the dashboard based on the instructions given at @magallanes_reyes_data_2022, and @aden-buie_flexdashboard_2024.
 
-### References
-<div id="refs"></div>
+## Column {.tabset .tabset-fade}
 
-## Column {data-width="450"}
 
 ### Barplot<!-- a title for plot -->
 
@@ -28,7 +23,6 @@ Preparing the dashboard based on the instructions given at @magallanes_reyes_dat
 readRDS("del1Draft.rds")
 ```
 
-## Column {data-width="550"}
 
 ### Violin plot
 
@@ -36,8 +30,19 @@ readRDS("del1Draft.rds")
 readRDS("Option1.rds")
 ```
 
-### Worst map
+### To be Add
+
+```{r}
+#readRDS("del3Draft.rds")
+```
+
+
+### To be added
 
 ```{r}
 #readRDS("del4Draft.rds")
 ```
+
+
+### References 
+<div id="refs"></div>

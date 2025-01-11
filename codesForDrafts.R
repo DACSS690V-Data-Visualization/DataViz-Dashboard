@@ -78,7 +78,7 @@ saveRDS(del1Draft, file = "del1Draft.rds")
 #importing the dataset
 linkMass="https://github.com/DACSS-Visual/tabular_bivar_catcat/raw/refs/heads/main/data/MSP%20DFS%20Arrests%2019-20Q1.xlsx"
 
-#upload the dataset
+#upload the needed libaries
 library(rio)
 library(dplyr)
 library(ggplot2)
@@ -86,6 +86,7 @@ library(ggpmisc)
 library(tibble)
 
 arrests=rio::import(linkMass,which = 1)
+
 head(arrests)
 colnames(arrests)[colnames(arrests) == "Arrest Type"] <- "Arrest_type" #update the column name
 colnames(arrests)
@@ -110,8 +111,8 @@ colSums(is.na(arrests_clean))
 age_summary <- arrests_clean |>
   group_by(Arrest_type) |>
   summarise(
-    median_age = median(Age, na.rm = TRUE),
-    max_age = max(Age, na.rm = TRUE))
+    median = median(Age, na.rm = TRUE),
+    max= max(Age, na.rm = TRUE))
 
 head(age_summary) #ensuring the code ran correctly.
 
@@ -132,39 +133,38 @@ TAnnot = function(wvalues, posX, posY, label) {
 }
 
 
-# Creating the table annotations for each arrest type for median and max
+# Creating the table annotations for each arrest type for median and max and showing them on the far right side 
 F_TMedian = TAnnot(age_summary[age_summary$Arrest_type == "F",], 
-                   posX = age_summary$median_age[age_summary$Arrest_type == "F"], 
-                   posY = 1, label = "median_age")  # Felony median at y = 1
+                   posX = 74, 
+                   posY = 1, label = "median")
 
 F_TMax = TAnnot(age_summary[age_summary$Arrest_type == "F",], 
-                posX = age_summary$max_age[age_summary$Arrest_type == "F"], 
-                posY = 1, label = "max_age")  # Felony max at y = 1
+                posX = 80,  
+                posY = 1, label = "max")  
 
 M_TMedian = TAnnot(age_summary[age_summary$Arrest_type == "M",], 
-                   posX = age_summary$median_age[age_summary$Arrest_type == "M"], 
-                   posY = 2, label = "median_age")  # Misdemeanor median at y = 2
+                   posX = 74, 
+                   posY = 2, label = "median")
 
 M_TMax = TAnnot(age_summary[age_summary$Arrest_type == "M",], 
-                posX = age_summary$max_age[age_summary$Arrest_type == "M"], 
-                posY = 2, label = "max_age")  # Misdemeanor max at y = 2
+                posX = 80, 
+                posY = 2, label = "max")  
 
 O_TMedian = TAnnot(age_summary[age_summary$Arrest_type == "O",], 
-                   posX = age_summary$median_age[age_summary$Arrest_type == "O"], 
-                   posY = 3, label = "median_age")  # Other median at y = 3
+                   posX = 74,  
+                   posY = 3, label = "median")
 
 O_TMax = TAnnot(age_summary[age_summary$Arrest_type == "O",], 
-                posX = age_summary$max_age[age_summary$Arrest_type == "O"], 
-                posY = 3, label = "max_age")  # Other max at y = 3
+                posX = 80,  
+                posY = 3, label = "max")  
 
 W_TMedian = TAnnot(age_summary[age_summary$Arrest_type == "W",], 
-                   posX = age_summary$median_age[age_summary$Arrest_type == "W"], 
-                   posY = 4, label = "median_age")  # Warrant median at y = 4
+                   posX =74,  
+                   posY = 4, label = "median")
 
 W_TMax = TAnnot(age_summary[age_summary$Arrest_type == "W",], 
-                posX = age_summary$max_age[age_summary$Arrest_type == "W"], 
-                posY = 4, label = "max_age")  # Warrant max at y = 4
-
+                posX = 80,  
+                posY = 4, label = "max")  
 
 
 # Filter out NULL annotations

@@ -33,7 +33,7 @@ readRDS("del1Draft.rds")
 ### Boxplot
 
 ```{r}
-readRDS("del2Draft.rds")
+readRDS("Option1.rds")
 ```
 
 ### Worst map

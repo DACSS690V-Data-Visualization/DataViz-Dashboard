@@ -80,6 +80,11 @@ linkMass="https://github.com/DACSS-Visual/tabular_bivar_catcat/raw/refs/heads/ma
 
 #upload the dataset
 library(rio)
+library(dplyr)
+library(ggplot2)
+library(ggpmisc)   
+library(tibble)
+
 arrests=rio::import(linkMass,which = 1)
 head(arrests)
 colnames(arrests)[colnames(arrests) == "Arrest Type"] <- "Arrest_type" #update the column name
@@ -164,8 +169,9 @@ W_TMax = TAnnot(age_summary[age_summary$Arrest_type == "W",],
 
 # Filter out NULL annotations
 annotations <- list(F_TMedian, F_TMax, M_TMedian, M_TMax, 
-                    O_TMedian, O_TMax, W_TMedian, W_TMax,)
-annotations <- annotations[!sapply(annotations, is.null)]
+                    O_TMedian, O_TMax, W_TMedian, W_TMax) 
+
+annotations <- annotations[!sapply(annotations, is.null)] 
 
 
 # Creating a violin plot to display the output

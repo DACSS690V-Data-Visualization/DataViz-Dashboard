@@ -30,14 +30,14 @@ readRDS("del1Draft.rds")
 readRDS("Option1.rds")
 ```
 
-### To be Add
+### To be Added
 
 ```{r}
 #readRDS("del3Draft.rds")
 ```
 
 
-### To be added
+### To be Added
 
 ```{r}
 #readRDS("del4Draft.rds")

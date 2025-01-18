@@ -30,17 +30,17 @@ readRDS("del1Draft.rds")
 readRDS("Option1.rds")
 ```
 
-### To be Added
+### Map
 
 ```{r}
-#readRDS("del3Draft.rds")
+readRDS("del3Draft.rds")
 ```
 
 
-### To be Added
+### Interactive Map
 
 ```{r}
-#readRDS("del4Draft.rds")
+readRDS("del4Draft.rds")
 ```
 
 

@@ -321,6 +321,11 @@ aggregBoston <- aggregBoston |>
     # Proportion based on Check contributions as a proportion of Credit Card contributions
     Proportion = ifelse(`Credit Card` > 0, Check / `Credit Card`, NA))
 
+# Calculate total contributions by Zip (for all tender types)
+total_aggreg <- bostonCont |>
+  group_by(Zip) |>
+  summarize(TotalAllTypes = sum(Amount, na.rm = TRUE), .groups = "drop")
+
 #Merge total tender type data with the aggregated Credit Card and Check 
 aggregBoston <- aggregBoston |>
   left_join(total_aggreg, by = "Zip") |>
@@ -351,45 +356,30 @@ FinalbostonZips <- Updated_bostonZips |>
     CheckPctOfTotal )
 
 #making sure the data updated correctly 
+
 head(FinalbostonZips)
 
 #Now to remove NA values for cleaner viz
 FinalbostonZips <- FinalbostonZips|>
   filter(!is.na(Check))
 #viewing the newly clean data
-
-head(FinalbostonZips)
+view(FinalbostonZips)
 
 ##Plotting -------------------------------------------------------------
 #plotting a choropleth with the average in contributions 
-ggplot(Updated_bostonZips) +
+del3Draft <- ggplot(FinalbostonZips) +
   geom_sf(aes(fill = Average), color = "white") +
   scale_fill_viridis_c(option = "plasma", na.value = "grey") +
   labs(
-    title = "Average Contributions by ZIP Code",
-    subtitle = "Tender Types: Credit Card and Check",
-    fill = "Average",
-    caption = "Data source: Massachusetts Office of Campaign and Political Finance"
+    title = "A Map of Average Political Contributions in Boston by Zip Codes",
+    subtitle = "Showing only Payment made by Credit Cards & Checks",
+    fill = "The Average Dollar Amount",
+    caption = "Source: Massachusetts Office of Campaign and Political Finance"
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 40))
-
+del3Draft
 # save del3Draft ----------------------------------------------------------
-
-#Making an interactive map 
-del3Draft <- tm_shape(Updated_bostonZips) +
-  tm_polygons("Average", palette = "plasma", title = "The Average") + 
-  tm_view(set.view = c(-71.0589, 42.3601, 10)) +
-  tm_layout(
-    main.title = "A Map of Average Political Contributions in Boston by Zip Codes",
-    main.title.size = 1.3,
-    main.title.position = "center",
-    title = "For Payment made by Credit Cards & Checks",
-    title.size = 1,
-    title.position = c("left", "bottom"),
-    legend.outside = TRUE,
-    legend.title.size = 1,
-    legend.text.size = 0.75 )
 
 #Save the viz
 saveRDS(del3Draft, file = "del3Draft.rds")

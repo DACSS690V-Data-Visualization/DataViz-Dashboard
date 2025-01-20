@@ -218,8 +218,7 @@ library(dplyr)
 library(ggplot2)
 library(leaflet)
 library(classInt) 
-
-
+library(htmlwidgets)
 
 #uploading the data
 linkBoston="https://github.com/DACSS-Visual/SpatialData/raw/refs/heads/main/data/BostonContrib.xlsx"
@@ -310,58 +309,91 @@ aggregBoston <- bostonCont |>
   group_by(Tender_Type, Zip) |> 
   summarize(TotalContrib = sum(Amount, na.rm = TRUE), .groups = "drop") |>
   tidyr::pivot_wider(names_from = Tender_Type, values_from = TotalContrib, values_fill = 0)
-
-# Adding comparison columns: Difference and Ratio
+# Join with the overall total contributions for prioritization
 aggregBoston <- aggregBoston |>
   mutate(
-    Difference = `Credit Card` - Check,
-    Ratio = ifelse(Check > 0, `Credit Card` / Check, NA) 
-  )
+    # Average based on Credit Card and Check
+    Average = (`Credit Card` + Check) / 2,
+    
+    # Rate based on Credit Card as a percentage of the total contributions for Credit Card + Check
+    Rate = ifelse(`Credit Card` + Check > 0, `Credit Card` / (`Credit Card` + Check) * 100, NA),
+    
+    # Proportion based on Check contributions as a proportion of Credit Card contributions
+    Proportion = ifelse(`Credit Card` > 0, Check / `Credit Card`, NA))
 
-#head(bostonZips)
-#connecting the two datasets
-bostonZips <- bostonZips |>
+#Merge total tender type data with the aggregated Credit Card and Check 
+aggregBoston <- aggregBoston |>
+  left_join(total_aggreg, by = "Zip") |>
+  mutate(
+    # Calculate Credit Card and Check as a percentage of all contributions
+    CreditCardPctOfTotal = ifelse(TotalAllTypes > 0, `Credit Card` / TotalAllTypes * 100, NA),
+    CheckPctOfTotal = ifelse(TotalAllTypes > 0, Check / TotalAllTypes * 100, NA))
+#View(aggregBoston)
+head(bostonZips)
+Updated_bostonZips <- bostonZips |>
   left_join(aggregBoston, by = c("ZIP5" = "Zip"))
+#View(Updated_bostonZips)
+
+#Filtering down to only columns needed for visualizations 
+FinalbostonZips <- Updated_bostonZips |>
+  select(
+    ZIP5,                   
+    geometry,  
+    Shape_Length,
+    Shape_Area,
+    Check,                  
+    `Credit Card`,          
+    Average,               
+    Rate,                   
+    Proportion,             
+    TotalAllTypes,          
+    CreditCardPctOfTotal,  
+    CheckPctOfTotal )
+
+#making sure the data updated correctly 
+head(FinalbostonZips)
+
+#Now to remove NA values for cleaner viz
+FinalbostonZips <- FinalbostonZips|>
+  filter(!is.na(Check))
+#viewing the newly clean data
+
+head(FinalbostonZips)
+
 ##Plotting -------------------------------------------------------------
-#plotting a choropleth with the difference in contributions 
-ggplot(bostonZips) +
-  geom_sf(aes(fill = Difference), color = "white") +
+#plotting a choropleth with the average in contributions 
+ggplot(Updated_bostonZips) +
+  geom_sf(aes(fill = Average), color = "white") +
   scale_fill_viridis_c(option = "plasma", na.value = "grey") +
-  labs(title = "Difference in Contributions by Zip Code",
-       subtitle = "Tender Type of Credit Card minus Check",
-       fill = "Difference",
-       caption = "Data source: Massachusetts Office of Campaign and Political Finance") +
-  theme_minimal()+
+  labs(
+    title = "Average Contributions by ZIP Code",
+    subtitle = "Tender Types: Credit Card and Check",
+    fill = "Average",
+    caption = "Data source: Massachusetts Office of Campaign and Political Finance"
+  ) +
+  theme_minimal() +
   theme(axis.text.x = element_text(angle = 40))
-
-#making a description the the ratio found and visualize it
-bostonZips <- bostonZips |>
-  mutate(RatioCat = cut(Ratio, breaks = classIntervals(Ratio, n = 5, style = "quantile")$brks,
-                        labels = c("Very Low", "Low", "Medium", "High", "Very High"),
-                        include.lowest = TRUE))
-#View(bostonZips)
-ggplot(bostonZips) +
-  geom_sf(aes(fill = RatioCat), color = "white") +
-  scale_fill_brewer(palette = "RdYlBu", na.value = "grey") +
-  labs(title = "Ratio of Contributions by Zip Code",
-       subtitle = "Credit Card by Check",
-       fill = "Ratio Category",
-       caption = "Data source: Massachusetts Office of Campaign and Political Finance") +
-  theme_minimal()
-
 
 # save del3Draft ----------------------------------------------------------
 
 #Making an interactive map 
-tm_shape(bostonZips) +
-  tm_polygons("Difference", palette = "plasma", title = "Difference in Tender Types") +
-  tm_view(set.view = c(-71.0589, 42.3601, 10)) -> tmap_chorop
+del3Draft <- tm_shape(Updated_bostonZips) +
+  tm_polygons("Average", palette = "plasma", title = "The Average") + 
+  tm_view(set.view = c(-71.0589, 42.3601, 10)) +
+  tm_layout(
+    main.title = "A Map of Average Political Contributions in Boston by Zip Codes",
+    main.title.size = 1.3,
+    main.title.position = "center",
+    title = "For Payment made by Credit Cards & Checks",
+    title.size = 1,
+    title.position = c("left", "bottom"),
+    legend.outside = TRUE,
+    legend.title.size = 1,
+    legend.text.size = 0.75 )
 
-leaflet_map <- tmap_leaflet(tmap_chorop)
-leaflet_map |> 
-  addProviderTiles("OpenStreetMap") |>  
-  addPolygons(data = bostonZips, fillOpacity = 0.5, color = "blue", weight = 1)
-#saveRDS(del3Draft, file = "del3Draft.rds")
+#Save the viz
+saveRDS(del3Draft, file = "del3Draft.rds")
+
 # deliverable 4  ----------------------------------------------------------
 #creating a choropleth map
 Cggplot_map <- function(data, var, title, subtitle) {
@@ -385,29 +417,31 @@ Ctmap_interactive <- function(data, var, title) {
     addPolygons(data = data, fillOpacity = 0.5, color = "blue", weight = 1)}
 
 #For credit cards
-Cggplot_map(bostonZips, "Credit Card", 
+Cggplot_map(FinalbostonZips, "Credit Card", 
                   "Total Credit Card Contributions by Zip Code", 
                   "By Zip Code")
-Ctmap_interactive(bostonZips, "Credit Card", "Credit Card Contributions")
+Ctmap_interactive(FinalbostonZips, "Credit Card", "Credit Card Contributions")
 
 #For checks
-Cggplot_map(bostonZips, "Check", 
+Cggplot_map(FinalbostonZips, "Check", 
                   "Total Check Contributions by Zip Code", 
                   "By Zip Code")
-Ctmap_interactive(bostonZips, "Check", "Check Contributions")
+Ctmap_interactive(FinalbostonZips, "Check", "Check Contributions")
 
 #Layering and combining maps 
-leaflet_map <- tmap_leaflet(tm_shape(bostonZips) +
-                              tm_polygons("Credit Card", palette = "plasma", title = "Credit Card Contributions", alpha = 0.5))
+leaflet_map2 <- tmap_leaflet(tm_shape(FinalbostonZips) +
+                               tm_polygons("Credit Card", palette = "plasma", title = "Contributions", alpha = 0.5))
 
-leaflet_map |>
+leaflet_map2 |>
   addProviderTiles("OpenStreetMap") |>
-  addPolygons(data = bostonZips, fillOpacity = 0.5, color = "blue", weight = 1, group = "Credit Card") |>  
-  addPolygons(data = bostonZips, fillOpacity = 0.5, color = "red", weight = 1, group = "Check") |>  
+  addPolygons(data = FinalbostonZips, fillOpacity = 0.5, color = "blue", weight = 1, group = "Credit Card") |>  
+  addPolygons(data = FinalbostonZips, fillOpacity = 0.5, color = "red", weight = 1, group = "Check") |>  
   addLayersControl(
     overlayGroups = c("Credit Card", "Check"),
     options = layersControlOptions(collapsed = FALSE)
   )
-
 # save del4Draft ----------------------------------------------------------
-#saveRDS(del4Draft, file = "del4Draft.rds")
+saveRDS(leaflet_map2, "del4Draft.rds")
+saveWidget(leaflet_map2, "del4Draft.html")
+
+

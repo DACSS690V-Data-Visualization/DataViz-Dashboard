@@ -372,12 +372,19 @@ del3Draft <- ggplot(FinalbostonZips) +
   scale_fill_viridis_c(option = "plasma", na.value = "grey") +
   labs(
     title = "A Map of Average Political Contributions in Boston by Zip Codes",
-    subtitle = "Showing only Payment made by Credit Cards & Checks",
+    subtitle = "With North Downtown Boston and Northwest in the Led with Contributions\n Showing only Credit Card and Check Payments",
     fill = "The Average Dollar Amount",
-    caption = "Source: Massachusetts Office of Campaign and Political Finance"
+    caption = "Source: Massachusetts Office of Campaign and Political Finance",
+    x = NULL, 
+    y = NULL,
   ) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 40))
+  theme(
+  axis.text = element_blank(),        
+  axis.ticks = element_blank(),      
+  axis.title = element_blank(),      
+  panel.grid = element_blank())
+  
 del3Draft
 # save del3Draft ----------------------------------------------------------
 

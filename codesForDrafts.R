@@ -309,16 +309,15 @@ aggregBoston <- bostonCont |>
   group_by(Tender_Type, Zip) |> 
   summarize(TotalContrib = sum(Amount, na.rm = TRUE), .groups = "drop") |>
   tidyr::pivot_wider(names_from = Tender_Type, values_from = TotalContrib, values_fill = 0)
+
 # Join with the overall total contributions for prioritization
-aggregBoston <- aggregBoston |>
-  mutate(
-    # Average based on Credit Card and Check
-    Average = (`Credit Card` + Check) / 2,
-    
-    # Rate based on Credit Card as a percentage of the total contributions for Credit Card + Check
-    Rate = ifelse(`Credit Card` + Check > 0, `Credit Card` / (`Credit Card` + Check) * 100, NA),
-    
-    # Proportion based on Check contributions as a proportion of Credit Card contributions
+aaveragePerZip <- aggregBoston |>
+  mutate(AvgCreditCard = `Credit Card`, AvgCheck = Check) |>
+  select(Zip, AvgCreditCard, AvgCheck)
+aggregBoston1 <- aggregBoston |>
+  mutate(Average = (`Credit Card` + Check) / 2,  
+      Rate = ifelse(`Credit Card` + Check > 0, 
+      `Credit Card` / (`Credit Card` + Check) * 100, NA),
     Proportion = ifelse(`Credit Card` > 0, Check / `Credit Card`, NA))
 
 # Calculate total contributions by Zip (for all tender types)
@@ -330,14 +329,14 @@ total_aggreg <- bostonCont |>
 aggregBoston <- aggregBoston |>
   left_join(total_aggreg, by = "Zip") |>
   mutate(
-    # Calculate Credit Card and Check as a percentage of all contributions
     CreditCardPctOfTotal = ifelse(TotalAllTypes > 0, `Credit Card` / TotalAllTypes * 100, NA),
     CheckPctOfTotal = ifelse(TotalAllTypes > 0, Check / TotalAllTypes * 100, NA))
-#View(aggregBoston)
-head(bostonZips)
+
+View(aggregBoston)
+
 Updated_bostonZips <- bostonZips |>
   left_join(aggregBoston, by = c("ZIP5" = "Zip"))
-#View(Updated_bostonZips)
+View(Updated_bostonZips)
 
 #Filtering down to only columns needed for visualizations 
 FinalbostonZips <- Updated_bostonZips |>
@@ -346,45 +345,55 @@ FinalbostonZips <- Updated_bostonZips |>
     geometry,  
     Shape_Length,
     Shape_Area,
-    Check,                  
-    `Credit Card`,          
-    Average,               
-    Rate,                   
-    Proportion,             
+    AvgCheck = Check,                  
+    AvgCreditCard = `Credit Card`,          
     TotalAllTypes,          
     CreditCardPctOfTotal,  
-    CheckPctOfTotal )
+    CheckPctOfTotal )|>
+  filter(!is.na(AvgCheck))
 
 #making sure the data updated correctly 
-
-head(FinalbostonZips)
-
-#Now to remove NA values for cleaner viz
-FinalbostonZips <- FinalbostonZips|>
-  filter(!is.na(Check))
-#viewing the newly clean data
 view(FinalbostonZips)
 
 ##Plotting -------------------------------------------------------------
+#Making the facet maps with the legend
+FacetData <- FinalbostonZips |>
+  tidyr::pivot_longer(
+    cols = c(AvgCheck, AvgCreditCard),
+    names_to = "PaymentType",
+    values_to = "Average")
+
 #plotting a choropleth with the average in contributions 
-del3Draft <- ggplot(FinalbostonZips) +
+del3Draft <- ggplot(FacetData) +
   geom_sf(aes(fill = Average), color = "white") +
-  scale_fill_viridis_c(option = "plasma", na.value = "grey") +
-  labs(
-    title = "A Map of Average Political Contributions in Boston by Zip Codes",
-    subtitle = "With North Downtown Boston and Northwest in the Led with Contributions\n Showing only Credit Card and Check Payments",
-    fill = "The Average Dollar Amount",
-    caption = "Source: Massachusetts Office of Campaign and Political Finance",
-    x = NULL, 
-    y = NULL,
+  scale_fill_viridis_c(
+    option = "plasma", 
+    na.value = "grey", 
+    name = "Average Contribution ($)",   # Set legend title
+    labels = scales::comma_format()     # Format labels with commas for readability
   ) +
+  labs(
+    title = "Northwest Boston has Higher Contributions by Credit Card",
+    subtitle = "Comparison of Average Contributions by Payment Type",
+    caption = "Source: Massachusetts Office of Campaign and Political Finance",
+    x = NULL,
+    y = NULL
+  ) +
+  facet_wrap(~ PaymentType, ncol = 2, labeller = as_labeller(c(
+    "AvgCheck" = "By Check",
+    "AvgCreditCard" = "By Credit Card"
+  ))) +
   theme_minimal() +
   theme(
-  axis.text = element_blank(),        
-  axis.ticks = element_blank(),      
-  axis.title = element_blank(),      
-  panel.grid = element_blank())
-  
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    strip.text = element_text(size = 12, face = "bold"),  # Customize facet labels
+    plot.margin = margin(0, 0, 0, 0))
+
+# Display the maps
+
 del3Draft
 # save del3Draft ----------------------------------------------------------
 
